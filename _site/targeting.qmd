@@ -695,8 +695,7 @@ contested_dat <- interest_targeting %>%
 })
   
   hc_dat <- contested_dat %>%
-    left_join(lab_dat) %>%
-    left_join(color_dat) %>% 
+    left_join(lab_dat %>% select(-total_spenderino)) %>%    left_join(color_dat) %>% 
     mutate(perc = 100*perc) %>% 
     drop_na(value) %>% 
     mutate(value = factor(value, the_order))  %>% 
