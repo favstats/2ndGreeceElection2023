@@ -463,8 +463,8 @@ contested_dat30 <- interest_targeting30 %>%
   # filter(n >= 5) %>% 
   group_by(party) %>% 
   mutate(total_spenderino = sum(total_spend)) %>% 
-  mutate(perc = total_spend/total_spenderino) #%>%
-  # mutate(value = str_remove_all(value, "INTERESTS: |DEMOGRAPHICS: |BEHAVIORS: ")) %>% 
+  mutate(perc = total_spend/total_spenderino) %>%
+  mutate(value = str_remove_all(value, "INTERESTS: |DEMOGRAPHICS: |BEHAVIORS: ")) #%>%
   # mutate(value = str_replace_all(value, " \\s*\\([^\\)]+\\)", ""))
 
 
@@ -498,8 +498,8 @@ contested_dat7 <- interest_targeting7 %>%
   # filter(n >= 5) %>% 
   group_by(party) %>% 
   mutate(total_spenderino = sum(total_spend)) %>% 
-  mutate(perc = total_spend/total_spenderino)# %>%
-  # mutate(value = str_remove_all(value, "INTERESTS: |DEMOGRAPHICS: |BEHAVIORS: ")) %>% 
+  mutate(perc = total_spend/total_spenderino) %>%
+  mutate(value = str_remove_all(value, "INTERESTS: |DEMOGRAPHICS: |BEHAVIORS: ")) #%>%
   # mutate(value = str_replace_all(value, " \\s*\\([^\\)]+\\)", ""))
 
 ```
@@ -517,6 +517,7 @@ generate_plots <- function(data) {
   gg <- data %>%
     group_by(party) %>%
     arrange(desc(perc)) %>% 
+    distinct(value, .keep_all = T) %>% 
     slice(1:10)
   
   plots <- gg %>%
@@ -547,7 +548,6 @@ generate_plots <- function(data) {
   # columns <- ggplot2::ggarrange(plots[[1]], plots[[2]], ncol = 2)
   # highcharter::hchart(columns, spacing = list(right = 100))
 }
-
 
 
 ```
