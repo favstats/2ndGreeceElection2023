@@ -690,7 +690,7 @@ contested_dat <- interest_targeting %>%
           # verticalAlign = "middle",
           x = 10,
           y = 0,
-          style = list(fontSize = "12px", fontWeight = "bold")
+          style = list(fontSize = "7px", fontWeight = "bold")
   )
 })
   
@@ -728,7 +728,7 @@ contested_dat <- interest_targeting %>%
 
 
   
-get_contested_graph(election_dat30, minamount = 1000)
+get_contested_graph(election_dat30, minamount = 500)
 ```
 
 
@@ -1153,7 +1153,7 @@ age_targeting7 <- election_dat7 %>%
                                  "55-64", "65+") %>% rev)) %>% 
   ungroup()
   
-    charts <- age_targeting %>%
+    charts <- age_targeting7 %>%
   mutate(spend_perlab = scales::comma(round(spend_per))) %>% 
   mutate(perc = perc*100) %>% 
     split(.$party) %>%

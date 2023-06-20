@@ -131,7 +131,7 @@ calc_targeting <- function(only_tags) {
     return(targeting_on_each)
 }
 
-relationshipstuff <- "Widowed|Recently moved|Away|[r|R]elationship|Parents|Partner|Separated|Divorced|Single|Complicated|Married|Engaged|Newlywed|Civil Union|Unspecified"
+relationshipstuff <- "Widowed|Recently moved|Away|[r|R]elationship|Parents|Partner|Separated|Divorced|Single|Complicated|Married|Engaged|Newlywed|Civil Union|Unspecified|Newly engaged"
 
 
 add_ribbons <- function(x, adv, col) {
