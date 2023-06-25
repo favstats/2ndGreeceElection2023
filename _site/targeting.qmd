@@ -1577,136 +1577,136 @@ tags$div(class = "container", do.call(tags$div, rows))
 
 :::
 
-## Job Targeting
+<!-- ## Job Targeting -->
 
-The graphs below show targeting by job (sectors) and how much percentage of party budgets were spent on them.
-
-
-> Note: targeting criteria can overlap so the percentages do not sum up to 100%.
+<!-- The graphs below show targeting by job (sectors) and how much percentage of party budgets were spent on them. -->
 
 
-::: {.panel-tabset}
+<!-- > Note: targeting criteria can overlap so the percentages do not sum up to 100%. -->
 
 
-### `r last30days_string` (Last 30 days)
-
-```{r, fig.width= 11, fig.height=8, dpi = 300}
+<!-- ::: {.panel-tabset} -->
 
 
-calc_jobs_perc <- function(x) {
-    
-total_sppppeen <- x %>% 
-# filter(coalition == "Coalizione di centro-destra") %>% 
-  mutate(total_spend = total_spend_formatted) %>%
-  distinct(internal_id, .keep_all = T)  %>%
-  # mutate(total_spend = readr::parse_number(total_spend_formatted)) %>%
-  mutate(total_spend = ifelse(total_spend == 50, 50, total_spend)) %>% 
-  select(internal_id, total_spend) %>% 
-  arrange(desc(total_spend)) %>% 
-  summarize(total_budget = sum(total_spend)) %>% 
-  ungroup()
+<!-- ### `r last30days_string` (Last 30 days) -->
 
-x %>% 
-    filter(type == "detailed") %>%
-    filter(detailed_type == "DEMOGRAPHICS") %>% 
-  filter(!is_exclusion) %>% 
-    # count(value, sort = T) %>% 
-    filter(str_detect(value, "grad school|degree|	|Master|[c|C]ollege|degree|[H|h]igh school|Professional degree", negate = T)) %>% 
-  mutate(total_spend = total_spend_formatted) %>%
-  mutate(total_spend = ifelse(total_spend == 50, 50, total_spend)) %>% 
-  # filter(coalition == "Coalizione di centro-destra") %>%  
-  # filter(total_spend_pct != 0) %>% 
-  # group_by(internal_id) %>%
-  # mutate(n_ages = n()) %>% #count(n_ages, sort = T)
-  # ungroup()%>% 
-  mutate(spend_per = total_spend * total_spend_pct) %>% 
-  group_by(value) %>% 
-  summarize(spend_per = sum(spend_per)) %>% 
-  bind_cols(total_sppppeen) %>% 
-  mutate(perc = spend_per/total_budget) %>% 
-            mutate(coalition = x$coalition[1],
-                   party = x$party[1],
-                   election = x$election[1])
-}
-
-job_targeting <- election_dat30 %>% 
-    group_split(party) %>% 
-    map_dfr(calc_jobs_perc) %>% 
-    filter(perc >= 0.015) %>% 
-    filter(str_detect(value, relationshipstuff, negate = T)) %>% 
-     # mutate(coalition = fct_relevel(coalition, c("Coalizione di centro-sinistra",
-     #                              "Terzo Polo",
-     #                              "Coalizione di centro-destra"))) %>% 
-    group_by(party) %>% 
-    arrange(desc(perc)) %>% 
-    slice(1:20) %>% 
-    mutate(value = fct_reorder(value, perc)) 
+<!-- ```{r, fig.width= 11, fig.height=8, dpi = 300} -->
 
 
+<!-- calc_jobs_perc <- function(x) { -->
 
+<!-- total_sppppeen <- x %>%  -->
+<!-- # filter(coalition == "Coalizione di centro-destra") %>%  -->
+<!--   mutate(total_spend = total_spend_formatted) %>% -->
+<!--   distinct(internal_id, .keep_all = T)  %>% -->
+<!--   # mutate(total_spend = readr::parse_number(total_spend_formatted)) %>% -->
+<!--   mutate(total_spend = ifelse(total_spend == 50, 50, total_spend)) %>%  -->
+<!--   select(internal_id, total_spend) %>%  -->
+<!--   arrange(desc(total_spend)) %>%  -->
+<!--   summarize(total_budget = sum(total_spend)) %>%  -->
+<!--   ungroup() -->
 
-# Determine the maximum value for xlim
-max_x <- max(job_targeting$perc*100)
+<!-- x %>%  -->
+<!--     filter(type == "detailed") %>% -->
+<!--     filter(detailed_type == "DEMOGRAPHICS") %>%  -->
+<!--   filter(!is_exclusion) %>%  -->
+<!--     # count(value, sort = T) %>%  -->
+<!--     filter(str_detect(value, "grad school|degree|	|Master|[c|C]ollege|degree|[H|h]igh school|Professional degree", negate = T)) %>%  -->
+<!--   mutate(total_spend = total_spend_formatted) %>% -->
+<!--   mutate(total_spend = ifelse(total_spend == 50, 50, total_spend)) %>%  -->
+<!--   # filter(coalition == "Coalizione di centro-destra") %>%   -->
+<!--   # filter(total_spend_pct != 0) %>%  -->
+<!--   # group_by(internal_id) %>% -->
+<!--   # mutate(n_ages = n()) %>% #count(n_ages, sort = T) -->
+<!--   # ungroup()%>%  -->
+<!--   mutate(spend_per = total_spend * total_spend_pct) %>%  -->
+<!--   group_by(value) %>%  -->
+<!--   summarize(spend_per = sum(spend_per)) %>%  -->
+<!--   bind_cols(total_sppppeen) %>%  -->
+<!--   mutate(perc = spend_per/total_budget) %>%  -->
+<!--             mutate(coalition = x$coalition[1], -->
+<!--                    party = x$party[1], -->
+<!--                    election = x$election[1]) -->
+<!-- } -->
 
-# Create the charts
-charts <- job_targeting %>%
-  mutate(spend_perlab = scales::comma(round(spend_per))) %>% 
-  mutate(perc = perc * 100) %>% 
-  split(.$party) %>%
-  map(~ {
-    the_color <- color_dat$colors[color_dat$party == .x$party[1]]
-    hchart(.x, type = "bar", hcaes(x = value, y = perc), color = the_color) %>%
-      hc_plotOptions(bar = list(horizontal = TRUE, stacking = "normal")) %>%
-      hc_yAxis(title = list(text = "% Party Budget spent on targeting method"),
-        max = max_x) %>%   # Set the maximum x-axis value) %>%
-      hc_xAxis(
-        title = "",
-        labels = list(style = list(fontSize = "10px"))
-      ) %>%
-      hc_add_theme(hc_theme_google()) %>%
-      highcharter::hc_tooltip(
-        pointFormat = paste0("<b>{point.value}</b><br>% of Total Budget Spent: {point.y:.1f}%<br>Spend a total of ", currency_symbol, "{point.spend_perlab} on this job (sector)"),
-        headerFormat = ""
-      ) %>%
-      hc_title(text = unique(.x$party), align = "left", style = list(fontWeight = "bold")) %>% 
-      hc_size(height = 300) %>%
-    hc_exporting(
-      enabled = TRUE
-    )
-  })
+<!-- job_targeting <- election_dat30 %>%  -->
+<!--     group_split(party) %>%  -->
+<!--     map_dfr(calc_jobs_perc) %>%  -->
+<!--     filter(perc >= 0.015) %>%  -->
+<!--     filter(str_detect(value, relationshipstuff, negate = T)) %>%  -->
+<!--      # mutate(coalition = fct_relevel(coalition, c("Coalizione di centro-sinistra", -->
+<!--      #                              "Terzo Polo", -->
+<!--      #                              "Coalizione di centro-destra"))) %>%  -->
+<!--     group_by(party) %>%  -->
+<!--     arrange(desc(perc)) %>%  -->
+<!--     slice(1:20) %>%  -->
+<!--     mutate(value = fct_reorder(value, perc))  -->
 
 
 
 
-    
-```
+<!-- # Determine the maximum value for xlim -->
+<!-- max_x <- max(job_targeting$perc*100) -->
+
+<!-- # Create the charts -->
+<!-- charts <- job_targeting %>% -->
+<!--   mutate(spend_perlab = scales::comma(round(spend_per))) %>%  -->
+<!--   mutate(perc = perc * 100) %>%  -->
+<!--   split(.$party) %>% -->
+<!--   map(~ { -->
+<!--     the_color <- color_dat$colors[color_dat$party == .x$party[1]] -->
+<!--     hchart(.x, type = "bar", hcaes(x = value, y = perc), color = the_color) %>% -->
+<!--       hc_plotOptions(bar = list(horizontal = TRUE, stacking = "normal")) %>% -->
+<!--       hc_yAxis(title = list(text = "% Party Budget spent on targeting method"), -->
+<!--         max = max_x) %>%   # Set the maximum x-axis value) %>% -->
+<!--       hc_xAxis( -->
+<!--         title = "", -->
+<!--         labels = list(style = list(fontSize = "10px")) -->
+<!--       ) %>% -->
+<!--       hc_add_theme(hc_theme_google()) %>% -->
+<!--       highcharter::hc_tooltip( -->
+<!--         pointFormat = paste0("<b>{point.value}</b><br>% of Total Budget Spent: {point.y:.1f}%<br>Spend a total of ", currency_symbol, "{point.spend_perlab} on this job (sector)"), -->
+<!--         headerFormat = "" -->
+<!--       ) %>% -->
+<!--       hc_title(text = unique(.x$party), align = "left", style = list(fontWeight = "bold")) %>%  -->
+<!--       hc_size(height = 300) %>% -->
+<!--     hc_exporting( -->
+<!--       enabled = TRUE -->
+<!--     ) -->
+<!--   }) -->
 
 
-```{r echo=FALSE, results='asis'}
-
-# Map each plot to a column
-columns <- map(charts, ~ div(style = "width: 50%; float: left;", .x))
-
-# If there's an odd number of plots, add an empty div to the end to balance the columns
-if (length(columns) %% 2 == 1) {
-  columns <- c(columns, list(div(style = "width: 50%; float: left;")))
-}
-
-# Pair up the columns and wrap them in rows
-rows <- map(seq(from = 1, to = length(columns), by = 2), ~ {
-  div(class = "row",
-    list(
-      columns[[.x]],
-      columns[[.x + 1]]
-    )
-  )
-})
-
-# Print the rows
-tags$div(class = "container", do.call(tags$div, rows))
 
 
-```
+
+<!-- ``` -->
+
+
+<!-- ```{r echo=FALSE, results='asis'} -->
+
+<!-- # Map each plot to a column -->
+<!-- columns <- map(charts, ~ div(style = "width: 50%; float: left;", .x)) -->
+
+<!-- # If there's an odd number of plots, add an empty div to the end to balance the columns -->
+<!-- if (length(columns) %% 2 == 1) { -->
+<!--   columns <- c(columns, list(div(style = "width: 50%; float: left;"))) -->
+<!-- } -->
+
+<!-- # Pair up the columns and wrap them in rows -->
+<!-- rows <- map(seq(from = 1, to = length(columns), by = 2), ~ { -->
+<!--   div(class = "row", -->
+<!--     list( -->
+<!--       columns[[.x]], -->
+<!--       columns[[.x + 1]] -->
+<!--     ) -->
+<!--   ) -->
+<!-- }) -->
+
+<!-- # Print the rows -->
+<!-- tags$div(class = "container", do.call(tags$div, rows)) -->
+
+
+<!-- ``` -->
 
 :::
 
